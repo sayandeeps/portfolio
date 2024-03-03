@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 
 // Define your skill data
 const skillsData = [
@@ -25,19 +25,32 @@ const skillsData = [
 ];
 
 const SkillsGrid = () => {
+  const [showMore, setShowMore] = useState(false);  
+  const [numSkillsDisplayed, setNumSkillsDisplayed] = useState(6); 
+
   return (
     <div className="grid gap-4 md:grid-cols-5 sm:grid-cols-3">
-      {skillsData.map((skill, index) => (
-        <div key={index} className="text-center">
-          <img src={skill.icon} alt={skill.name} className="mx-auto h-16 w-16" />
-          <p className="mt-2 text-sm text-gray-600">{skill.name}</p>
-        </div>
-      ))}
+      {skillsData
+        .slice(0, numSkillsDisplayed)
+        .map((skill, index) => (
+          <div key={index} className="text-center">
+            <img src={skill.icon} alt={skill.name} className="mx-auto h-16 w-16" />
+            <p className="mt-2 text-sm text-gray-600">{skill.name}</p>
+          </div>
+        ))}
+        <button 
+            onClick={() => {
+                setShowMore(!showMore);
+                setNumSkillsDisplayed(showMore ? 6 : skillsData.length);
+            }}
+            className="mt-4"
+        >
+            {showMore ? "View Less Skills" : "View More Skills"}
+        </button>
     </div>
   );
 };
 
-// Adding display name to the component
 SkillsGrid.displayName = "SkillsGrid";
 
 export default SkillsGrid;
