@@ -9,7 +9,7 @@ const statuses = ["Idea", "In progress", "Ready", "Published"];
 const categories = ["GitHub cleanup", "Data engineering", "Applied AI", "Fun", "Personal"];
 const field = "rounded-lg border bg-surface2 px-3 py-2 text-content";
 
-export default function TrackerBoard() {
+export default function TrackerBoard({ starterProjects }) {
   const [items, setItems] = useState(null);
   const [error, setError] = useState("");
 
@@ -19,7 +19,13 @@ export default function TrackerBoard() {
     async function load() {
       try {
         const encoded = localStorage.getItem(storageKey);
-        const stored = encoded ? await decryptEntries(encoded) : [];
+        if (encoded === null) {
+          localStorage.setItem(storageKey, await encryptEntries(starterProjects));
+          setItems(starterProjects);
+          return;
+        }
+
+        const stored = await decryptEntries(encoded);
         if (!Array.isArray(stored)) throw new Error("Invalid tracker data");
         setItems(stored);
       } catch {
@@ -27,7 +33,7 @@ export default function TrackerBoard() {
       }
     }
     load();
-  }, []);
+  }, [starterProjects]);
 
   async function save(next) {
     setSaving(true);
