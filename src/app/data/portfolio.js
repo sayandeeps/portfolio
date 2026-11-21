@@ -217,7 +217,7 @@ export const projects = [
     ],
     image: "/images/projects/1.png",
     tags: ["Web", "Blockchain"],
-    repo: "https://github.com/sayandeeps/admin_diversion_2024",
+    repo: null,
     live: null,
   },
   {
@@ -234,8 +234,8 @@ export const projects = [
     ],
     image: "/images/projects/2.png",
     tags: ["Web", "Blockchain"],
-    repo: "https://github.com/sayandeeps/diversion2k24",
-    live: "https://ecommerce-ten-pearl.vercel.app",
+    repo: null,
+    live: null,
   },
   {
     id: "ai-ecommerce-assistant",
@@ -251,8 +251,8 @@ export const projects = [
     ],
     image: "/images/projects/3.png",
     tags: ["AI", "Blockchain"],
-    repo: "https://github.com/sayandeeps/diversion2k24",
-    live: "https://ecommerce-ten-pearl.vercel.app",
+    repo: null,
+    live: null,
   },
   {
     id: "inventory-management",
@@ -268,7 +268,7 @@ export const projects = [
     ],
     image: "/images/projects/4.png",
     tags: ["Web"],
-    repo: "https://github.com/sayandeeps/Inventory-Management-System",
+    repo: null,
     live: null,
   },
   {
@@ -285,8 +285,8 @@ export const projects = [
     ],
     image: "/images/projects/6.png",
     tags: ["Web", "Cloud"],
-    repo: "https://github.com/sayandeeps/cn-work",
-    live: "https://cn-work.vercel.app/logindev",
+    repo: null,
+    live: null,
   },
 ];
 
