@@ -2,12 +2,12 @@ export const profile = {
   name: "Sayandeep Sharma",
   firstName: "Sayandeep",
   initials: "SS",
-  eyebrow: "5G Core · Test Automation · Full-Stack",
+  eyebrow: "5G Test Automation · Data Engineering",
   role: "Software Engineer, R&D",
   intro:
-    "I automate 5G Core testing at Telaverge, covering subscriber provisioning, authentication, and registration across network functions.",
+    "At Telaverge, I automate 5G Core testing and use logs and protocol traces to investigate failures across network functions.",
   introSecondary:
-    "I also build full-stack web applications and am exploring data pipelines with Python, SQL, and Azure.",
+    "I’m working toward a data engineering role by building projects that turn raw logs and exports into reliable datasets and reports.",
   location: "Kolkata, India",
   email: "sayandeep11@gmail.com",
   connectBlurb:
@@ -293,7 +293,7 @@ export const projects = [
 export const currentFocus = {
   heading: "What I'm learning",
   blurb:
-    "I’m learning how to design data models and build pipelines with Python, SQL, and Azure, including Azure Data Factory and PySpark on Databricks.",
+    "I’m building a Python and SQL pipeline that normalizes synthetic service logs, handles repeat imports, and aggregates error rates and latency. I’m also learning Azure Data Factory and PySpark on Databricks.",
   items: [
     "Data Engineering",
     "Python",

@@ -4,19 +4,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        ink: "#100D1B",
-        surface: "#1C172B",
-        surface2: "#251E38",
-        line: "rgba(209,190,255,0.18)",
+        ink: "#080A08",
+        surface: "#101510",
+        surface2: "#151E16",
+        line: "rgba(130,190,143,0.18)",
         ember: {
-          DEFAULT: "#DCFF70",
-          soft: "#EBFFA9",
-          dim: "rgba(220,255,112,0.12)",
+          DEFAULT: "#6CF58C",
+          soft: "#9AFFAF",
+          dim: "rgba(108,245,140,0.12)",
         },
         content: {
-          DEFAULT: "#F7F2FF",
-          muted: "#C5BBD7",
-          faint: "#ADA0C3",
+          DEFAULT: "#C9FBD1",
+          muted: "#9EBBA2",
+          faint: "#88A68D",
         },
       },
       fontFamily: {

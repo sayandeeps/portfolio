@@ -19,9 +19,9 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const title = "Sayandeep Sharma | Software Engineer, R&D";
+const title = "Sayandeep Sharma | 5G Test Automation & Data Engineering";
 const description =
-  "Software engineer at Telaverge working on 5G Core test automation and integration testing, with full-stack projects in React and Next.js.";
+  "Software engineer at Telaverge working on 5G Core test automation and building data engineering projects with Python and SQL.";
 
 export const metadata = {
   metadataBase: new URL(
@@ -44,7 +44,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#100D1B",
+  themeColor: "#080A08",
   width: "device-width",
   initialScale: 1,
 };
