@@ -1,133 +1,151 @@
 "use client";
-import React, { useState } from "react";
-import GithubIcon from "../../../public/github-icon.svg";
-import LinkedinIcon from "../../../public/linkedin-icon.svg";
-import Link from "next/link";
+import { useState } from "react";
 import Image from "next/image";
+import SectionHeading from "./SectionHeading";
+import { profile, socials } from "../data/portfolio";
 
-const EmailSection = () => {
-  const [emailSubmitted, setEmailSubmitted] = useState(false);
+const fieldClass =
+  "w-full rounded-lg border border-line bg-surface2 px-4 py-3 text-sm text-content placeholder:text-content-faint transition-colors focus:border-ember focus:outline-none";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = {
-      email: e.target.email.value,
-      subject: e.target.subject.value,
-      message: e.target.message.value,
-    };
-    const JSONdata = JSON.stringify(data);
-    const endpoint = "/api/send";
+export default function EmailSection() {
+  const [status, setStatus] = useState("idle");
 
-    // Form the request for sending data to the server.
-    const options = {
-      // The method is POST because we are sending data.
-      method: "POST",
-      // Tell the server we're sending JSON.
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // Body of the request is the JSON data we created above.
-      body: JSONdata,
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setStatus("sending");
+    const form = event.currentTarget;
+    const payload = {
+      email: form.email.value,
+      subject: form.subject.value,
+      message: form.message.value,
     };
 
-    const response = await fetch(endpoint, options);
-    const resData = await response.json();
-
-    if (response.status === 200) {
-      console.log("Message sent.");
-      setEmailSubmitted(true);
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("Request failed");
+      form.reset();
+      setStatus("success");
+    } catch (error) {
+      setStatus("error");
     }
   };
 
   return (
-    <section
-      id="contact"
-      className="grid md:grid-cols-2 my-12 md:my-12 py-24 gap-4 relative"
-    >
-      <div className="bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary-900 to-transparent rounded-full h-80 w-80 z-0 blur-lg absolute top-3/4 -left-4 transform -translate-x-1/2 -translate-1/2"></div>
-      <div className="z-10">
-        <h5 className="text-xl font-bold text-white my-2">
-          Let&apos;s Connect
-        </h5>
-        <p className="text-[#ADB7BE] mb-4 max-w-md">
-          {" "}
-          I&apos;m currently looking for new opportunities, my inbox is always
-          open. Whether you have a question or just want to say hi, I&apos;ll
-          try my best to get back to you!
-        </p>
-        <div className="socials flex flex-row gap-2">
-          <Link href="github.com">
-            <Image src={GithubIcon} alt="Github Icon" />
-          </Link>
-          <Link href="linkedin.com">
-            <Image src={LinkedinIcon} alt="Linkedin Icon" />
-          </Link>
-        </div>
-      </div>
-      <div>
-        {emailSubmitted ? (
-          <p className="text-green-500 text-sm mt-2">
-            Email sent successfully!
+    <section id="contact" className="py-20">
+      <SectionHeading title="Let's connect" />
+      <div className="mt-10 grid gap-12 lg:grid-cols-2">
+        <div>
+          <p className="max-w-md leading-relaxed text-content-muted">
+            {profile.connectBlurb}
           </p>
-        ) : (
-          <form className="flex flex-col" onSubmit={handleSubmit}>
-            <div className="mb-6">
-              <label
-                htmlFor="email"
-                className="text-white block mb-2 text-sm font-medium"
-              >
-                Your email
-              </label>
-              <input
-                name="email"
-                type="email"
-                id="email"
-                required
-                className="bg-[#18191E] border border-[#33353F] placeholder-[#9CA2A9] text-gray-100 text-sm rounded-lg block w-full p-2.5"
-                placeholder="jacob@google.com"
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="subject"
-                className="text-white block text-sm mb-2 font-medium"
-              >
-                Subject
-              </label>
-              <input
-                name="subject"
-                type="text"
-                id="subject"
-                required
-                className="bg-[#18191E] border border-[#33353F] placeholder-[#9CA2A9] text-gray-100 text-sm rounded-lg block w-full p-2.5"
-                placeholder="Just saying hi"
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="message"
-                className="text-white block text-sm mb-2 font-medium"
-              >
-                Message
-              </label>
-              <textarea
-                name="message"
-                id="message"
-                className="bg-[#18191E] border border-[#33353F] placeholder-[#9CA2A9] text-gray-100 text-sm rounded-lg block w-full p-2.5"
-                placeholder="Let's talk about..."
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-primary-500 hover:bg-primary-600 text-white font-medium py-2.5 px-5 rounded-lg w-full"
+          <p className="mt-6 font-mono text-sm">
+            <a
+              href={`mailto:${profile.email}`}
+              className="text-ember transition-colors hover:text-ember-soft"
             >
-              Send Message
-            </button>
-          </form>
-        )}
+              {profile.email}
+            </a>
+          </p>
+          <div className="mt-6 flex gap-3">
+            {socials.map((social) => (
+              <a
+                key={social.name}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.name}
+                className="icon-btn"
+              >
+                <Image
+                  src={`/${social.name.toLowerCase()}-icon.svg`}
+                  alt=""
+                  width={20}
+                  height={20}
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div>
+            <label
+              htmlFor="email"
+              className="mb-2 block font-mono text-xs uppercase tracking-[0.15em] text-content-muted"
+            >
+              Your email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              className={fieldClass}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="subject"
+              className="mb-2 block font-mono text-xs uppercase tracking-[0.15em] text-content-muted"
+            >
+              Subject
+            </label>
+            <input
+              id="subject"
+              name="subject"
+              type="text"
+              required
+              placeholder="Just saying hi"
+              className={fieldClass}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="message"
+              className="mb-2 block font-mono text-xs uppercase tracking-[0.15em] text-content-muted"
+            >
+              Message
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              rows={5}
+              required
+              placeholder="Let's talk about…"
+              className={fieldClass}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={status === "sending"}
+            className="btn-primary justify-center disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {status === "sending" ? "Sending…" : "Send message"}
+          </button>
+
+          <p role="status" aria-live="polite" className="min-h-[1.25rem] text-sm">
+            {status === "success" && (
+              <span className="text-ember">
+                Thanks, your message is on its way.
+              </span>
+            )}
+            {status === "error" && (
+              <span className="text-red-400">
+                Something went wrong. Email me directly at {profile.email}.
+              </span>
+            )}
+          </p>
+        </form>
       </div>
     </section>
   );
-};
-
-export default EmailSection;
+}

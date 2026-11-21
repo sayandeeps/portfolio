@@ -1,81 +1,59 @@
-"use client";
-import React, { useTransition, useState } from "react";
 import Image from "next/image";
-import TabButton from "./TabButton";
-import EducationTimeline from "./EducationTimeline";
-import HackathonTimeline from "./HackathonTimeline";
-import SkillsGrid from "./SkillsGrid";
+import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
+import { about, education } from "../data/portfolio";
 
-const TAB_DATA = [
-  {
-    title: "Skills",
-    id: "skills",
-    content: <SkillsGrid /> ,
-  },
-  {
-    title: "Education",
-    id: "education",
-    content: <EducationTimeline />,
-  },
-  {
-    title: "Certifications",
-    id: "certifications",
-    content: <HackathonTimeline />,
-  },
-];
-
-const AboutSection = () => {
-  const [tab, setTab] = useState("skills");
-  const [isPending, startTransition] = useTransition();
-
-  const handleTabChange = (id) => {
-    startTransition(() => {
-      setTab(id);
-    });
-  };
-
+export default function AboutSection() {
   return (
-    <section className="text-white" id="about">
-      <div className="md:grid md:grid-cols-2 gap-8 items-center py-8 px-4 xl:gap-16 sm:py-16 xl:px-16">
-        <Image src="/images/about-image.jpg" width={500} height={500} />
-        <div className="mt-4 md:mt-0 text-left flex flex-col h-full">
-          <h2 className="text-4xl font-bold text-white mb-4">About Me</h2>
-          <p className="text-base lg:text-lg">
-            I am a full stack web developer with a passion for creating
-            interactive and responsive web applications. I have experience
-            working with JavaScript, React, Redux, Node.js, Express, PostgreSQL, HTML, CSS, and Git. I am a quick learner and I am always looking to expand my knowledge and skill set. I am a team player and
-            I am excited to work with others to create amazing applications.
-          </p>
-          <div className="flex flex-row justify-start mt-8">
-            <TabButton
-              selectTab={() => handleTabChange("skills")}
-              active={tab === "skills"}
-            >
-              {" "}
-              Skills{" "}
-            </TabButton>
-            <TabButton
-              selectTab={() => handleTabChange("education")}
-              active={tab === "education"}
-            >
-              {" "}
-              Education{" "}
-            </TabButton>
-            <TabButton
-              selectTab={() => handleTabChange("certifications")}
-              active={tab === "certifications"}
-            >
-              {" "}
-              Hackathons{" "}
-            </TabButton>
+    <section id="about" className="py-20">
+      <SectionHeading title="About me" />
+      <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <Reveal className="lg:col-span-4">
+          <div className="card relative aspect-[4/5] overflow-hidden">
+            <Image
+              src="/images/about-image.jpg"
+              alt="Sayandeep Sharma at work"
+              fill
+              sizes="(max-width: 1024px) 90vw, 320px"
+              className="object-cover"
+            />
           </div>
-          <div className="mt-8">
-            {TAB_DATA.find((t) => t.id === tab).content}
-          </div>
+        </Reveal>
+
+        <div className="space-y-5 lg:col-span-8">
+          {about.map((paragraph, index) => (
+            <Reveal key={index} delay={index * 0.05}>
+              <p className="leading-relaxed text-content-muted">{paragraph}</p>
+            </Reveal>
+          ))}
+
+          <Reveal delay={0.15}>
+            <div className="mt-8 border-t border-line pt-6">
+              <p className="font-mono text-xs uppercase tracking-[0.22em] text-content-faint">
+                Education
+              </p>
+              <ul className="mt-4 space-y-4">
+                {education.map((entry) => (
+                  <li
+                    key={entry.school}
+                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1"
+                  >
+                    <div>
+                      <p className="font-display font-semibold text-content">
+                        {entry.degree}
+                      </p>
+                      <p className="text-content-muted">{entry.school}</p>
+                    </div>
+                    <p className="font-mono text-xs text-content-faint">
+                      {entry.period}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
   );
-};
-
-export default AboutSection;
+}

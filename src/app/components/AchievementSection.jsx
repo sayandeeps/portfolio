@@ -1,70 +1,55 @@
 "use client";
-import React from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
+import { stats } from "../data/portfolio";
 
-const AnimatedNumbers = dynamic(
-  () => {
-    return import("react-animated-numbers");
-  },
-  { ssr: false }
-);
+function CountUp({ value, suffix }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const reduce = useReducedMotion();
+  const [display, setDisplay] = useState(reduce ? value : 0);
 
-const achievementsList = [
-  {
-    metric: "Projects",
-    value: "30",
-    postfix: "+",
-  },
-  {
-    prefix: "~",
-    metric: "Subscribers",
-    value: "50",
-    postfix: "+",
-  },
-  {
-    metric: "Hackathons Participated",
-    value: "2",
-  },
-  {
-    metric: "Years of Experience",
-    value: "1",
-  },
-];
+  useEffect(() => {
+    if (!inView || reduce) return;
+    let raf;
+    const start = performance.now();
+    const duration = 900;
+    const tick = (now) => {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * value));
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, reduce, value]);
 
-const AchievementsSection = () => {
   return (
-    <div className="py-8 px-4 xl:gap-16 sm:py-16 xl:px-16">
-      <div className="sm:border-[#33353F] sm:border rounded-md py-8 px-16 flex flex-col sm:flex-row items-center justify-between">
-        {achievementsList.map((achievement, index) => {
-          return (
-            <div
-              key={index}
-              className="flex flex-col items-center justify-center mx-4 my-4 sm:my-0"
-            >
-              <h2 className="text-white text-4xl font-bold flex flex-row">
-                {achievement.prefix}
-                <AnimatedNumbers
-                  includeComma
-                  animateToNumber={parseInt(achievement.value)}
-                  locale="en-US"
-                  className="text-white text-4xl font-bold"
-                  configs={(_, index) => {
-                    return {
-                      mass: 1,
-                      friction: 100,
-                      tensions: 140 * (index + 1),
-                    };
-                  }}
-                />
-                {achievement.postfix}
-              </h2>
-              <p className="text-[#ADB7BE] text-base">{achievement.metric}</p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <span
+      ref={ref}
+      className="font-mono text-4xl font-semibold text-content sm:text-5xl"
+    >
+      {display}
+      {suffix}
+    </span>
   );
-};
+}
 
-export default AchievementsSection;
+export default function AchievementsSection() {
+  return (
+    <section className="py-14" aria-label="Highlights">
+      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-line bg-line lg:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="flex flex-col bg-surface p-6">
+            <dt className="order-2 mt-2 text-sm text-content-muted">
+              {stat.label}
+            </dt>
+            <dd className="order-1">
+              <CountUp value={stat.value} suffix={stat.suffix} />
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}

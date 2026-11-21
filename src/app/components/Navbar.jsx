@@ -1,67 +1,65 @@
 "use client";
 import Link from "next/link";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import NavLink from "./NavLink";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import MenuOverlay from "./MenuOverlay";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
+import { navLinks, profile } from "../data/portfolio";
 
-const navLinks = [
-  {
-    title: "About",
-    path: "#about",
-  },
-  {
-    title: "Projects",
-    path: "#projects",
-  },
-  {
-    title: "Contact",
-    path: "#contact",
-  },
-];
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
 
-const Navbar = () => {
-  const [navbarOpen, setNavbarOpen] = useState(false);
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
-    <nav className="fixed mx-auto border border-[#33353F] top-0 left-0 right-0 z-10 bg-[#121212] bg-opacity-100">
-      <div className="flex container lg:py-4 flex-wrap items-center justify-between mx-auto px-4 py-2">
+    <header className="sticky top-0 z-40 border-b border-line bg-ink/80 backdrop-blur">
+      <nav
+        aria-label="Primary"
+        className="mx-auto flex max-w-content items-center justify-between px-6 py-4 sm:px-8"
+      >
         <Link
-          href={"/"}
-          className="text-2xl md:text-5xl text-white font-semibold"
+          href="/"
+          className="font-mono text-lg font-semibold tracking-tight text-content"
+          aria-label={`${profile.name} — home`}
         >
-          SS
+          <span className="text-ember">{profile.initials}</span>
         </Link>
-        <div className="mobile-menu block md:hidden">
-          {!navbarOpen ? (
-            <button
-              onClick={() => setNavbarOpen(true)}
-              className="flex items-center px-3 py-2 border rounded border-slate-200 text-slate-200 hover:text-white hover:border-white"
-            >
-              <Bars3Icon className="h-5 w-5" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setNavbarOpen(false)}
-              className="flex items-center px-3 py-2 border rounded border-slate-200 text-slate-200 hover:text-white hover:border-white"
-            >
-              <XMarkIcon className="h-5 w-5" />
-            </button>
-          )}
-        </div>
-        <div className="menu hidden md:block md:w-auto" id="navbar">
-          <ul className="flex p-4 md:p-0 md:flex-row md:space-x-8 mt-0">
-            {navLinks.map((link, index) => (
-              <li key={index}>
-                <NavLink href={link.path} title={link.title} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      {navbarOpen ? <MenuOverlay links={navLinks} /> : null}
-    </nav>
-  );
-};
 
-export default Navbar;
+        <ul className="hidden items-center gap-8 md:flex">
+          {navLinks.map((link) => (
+            <li key={link.path}>
+              <NavLink href={link.path} title={link.title} />
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          className="icon-btn md:hidden"
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          aria-label={open ? "Close menu" : "Open menu"}
+          onClick={() => setOpen((value) => !value)}
+        >
+          {open ? (
+            <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <Bars3Icon className="h-5 w-5" aria-hidden="true" />
+          )}
+        </button>
+      </nav>
+
+      {open && (
+        <div id="mobile-menu" className="border-t border-line bg-ink md:hidden">
+          <MenuOverlay links={navLinks} onNavigate={() => setOpen(false)} />
+        </div>
+      )}
+    </header>
+  );
+}

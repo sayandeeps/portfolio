@@ -3,25 +3,178 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --ink: #100d1b;
+  --surface: #1c172b;
+  --surface-2: #251e38;
+  --line: rgba(209, 190, 255, 0.18);
+  --text: #f7f2ff;
+  --muted: #c5bbd7;
+  --ember: #dcff70;
+  --ember-soft: #ebffa9;
+  --ember-dim: rgba(220, 255, 112, 0.12);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: var(--ink);
+  color: var(--text);
+  text-rendering: optimizeLegibility;
+  background-image: radial-gradient(ellipse at top right, #2c1a49 0%, transparent 46rem);
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 1rem;
+  z-index: 100;
+  background: var(--ember);
+  color: var(--ink);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full bg-ember px-5 py-3 text-sm font-semibold text-ink transition-colors hover:bg-ember-soft;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-line px-5 py-3 text-sm font-semibold text-content transition-colors hover:border-content-muted hover:bg-surface;
+  }
+
+  .icon-btn {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-content-muted transition-colors hover:border-content-muted hover:text-content;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 font-mono text-xs text-content-muted;
+  }
+
+  .card {
+    @apply rounded-card border border-line bg-surface;
+  }
+}
+
+.hero-name {
+  font-size: clamp(3.1rem, 9.6vw, 7.4rem);
+  line-height: 0.92;
+  letter-spacing: -0.085em;
+}
+
+.hero-name span {
+  color: var(--ember);
+}
+
+.portrait-stage {
+  perspective: 850px;
+}
+
+.portrait-scene {
+  position: relative;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rotate-x, 4deg)) rotateY(var(--rotate-y, -8deg));
+  transition: transform 180ms ease-out;
+}
+
+.portrait-grid {
+  position: absolute;
+  inset: 6%;
+  border: 1px solid #a484ff66;
+  border-radius: 28%;
+  background:
+    linear-gradient(#c9b8ff22 1px, transparent 1px) 0 0 / 26px 26px,
+    linear-gradient(90deg, #c9b8ff22 1px, transparent 1px) 0 0 / 26px 26px,
+    radial-gradient(ellipse at 55% 40%, #7854dd, #261943 70%);
+  box-shadow: 0 0 60px #9363ff40, inset 0 0 38px #100d1b;
+  transform: translateZ(-24px);
+}
+
+.portrait-orbit {
+  position: absolute;
+  inset: 31% 2%;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.portrait-orbit-violet {
+  color: #c1a8ff;
+  transform: translateZ(-6px) rotate(-32deg);
+  box-shadow: 0 0 20px #b389ff80;
+}
+
+.portrait-orbit-lime {
+  color: var(--ember);
+  transform: translateZ(44px) rotate(-18deg);
+  inset: 64% 4% 14%;
+  border-top-color: transparent;
+  border-right-color: transparent;
+}
+
+.portrait-photo {
+  position: absolute;
+  inset: 2% 4% 5%;
+  transform: translateZ(32px);
+  filter: drop-shadow(0 14px 20px #100d1b99);
+}
+
+.project-card {
+  background-image: linear-gradient(155deg, #33234b, transparent 43%);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .project-card:hover {
+    transform: perspective(900px) translateY(-6px) rotateX(2deg);
+    box-shadow: 0 16px 32px #07051180;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-scene {
+    transform: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,35 +1,88 @@
-import React from "react";
-import { CodeBracketIcon, EyeIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
+import Image from "next/image";
+import {
+  ArrowTopRightOnSquareIcon,
+  CheckIcon,
+  CodeBracketIcon,
+} from "@heroicons/react/24/outline";
 
-const ProjectCard = ({ imgUrl, title, description, gitUrl, previewUrl }) => {
+export default function ProjectCard({ project }) {
+  const { title, summary, stack, features, image, repo, live } = project;
+
   return (
-    <div>
-      <div
-        className="h-52 md:h-72 rounded-t-xl relative group"
-        style={{ background: `url(${imgUrl})`, backgroundSize: "cover" }}
-      >
-        <div className="overlay items-center justify-center absolute top-0 left-0 w-full h-full bg-[#181818] bg-opacity-0 hidden group-hover:flex group-hover:bg-opacity-80 transition-all duration-500 ">
-          <Link
-            href={gitUrl}
-            className="h-14 w-14 mr-2 border-2 relative rounded-full border-[#ADB7BE] hover:border-white group/link"
-          >
-            <CodeBracketIcon className="h-10 w-10 text-[#ADB7BE] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  cursor-pointer group-hover/link:text-white" />
-          </Link>
-          <Link
-            href={previewUrl}
-            className="h-14 w-14 border-2 relative rounded-full border-[#ADB7BE] hover:border-white group/link"
-          >
-            <EyeIcon className="h-10 w-10 text-[#ADB7BE] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  cursor-pointer group-hover/link:text-white" />
-          </Link>
+    <article className="project-card card group flex h-full flex-col overflow-hidden hover:border-ember/50 focus-within:border-ember/50">
+      <div className="relative aspect-[16/10] overflow-hidden border-b border-line">
+        <Image
+          src={image}
+          alt=""
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        />
+      </div>
+
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="font-display text-lg font-semibold text-content">
+          {title}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-content-muted">
+          {summary}
+        </p>
+
+        <ul className="mt-4 flex flex-wrap gap-1.5">
+          {stack.map((tech) => (
+            <li
+              key={tech}
+              className="rounded-full border border-line px-2.5 py-0.5 font-mono text-[11px] text-content-faint"
+            >
+              {tech}
+            </li>
+          ))}
+        </ul>
+
+        <ul className="mt-4 space-y-1.5">
+          {features.map((feature) => (
+            <li key={feature} className="flex gap-2 text-sm text-content-muted">
+              <CheckIcon
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ember"
+                aria-hidden="true"
+              />
+              {feature}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-auto flex items-center gap-4 pt-6">
+          {repo && (
+            <a
+              href={repo}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${title} — source code`}
+              className="inline-flex items-center gap-2 text-sm font-medium text-content-muted transition-colors hover:text-ember"
+            >
+              <CodeBracketIcon className="h-4 w-4" aria-hidden="true" />
+              Code
+            </a>
+          )}
+          {live && (
+            <a
+              href={live}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${title} — live site`}
+              className="inline-flex items-center gap-2 text-sm font-medium text-content-muted transition-colors hover:text-ember"
+            >
+              <ArrowTopRightOnSquareIcon className="h-4 w-4" aria-hidden="true" />
+              Live
+            </a>
+          )}
+          {!repo && !live && (
+            <span className="text-sm text-content-faint">
+              Case study coming soon
+            </span>
+          )}
         </div>
       </div>
-      <div className="text-white rounded-b-xl mt-3 bg-[#181818]py-6 px-4">
-        <h5 className="text-xl font-semibold mb-2">{title}</h5>
-        <p className="text-[#ADB7BE]">{description}</p>
-      </div>
-    </div>
+    </article>
   );
-};
-
-export default ProjectCard;
+}

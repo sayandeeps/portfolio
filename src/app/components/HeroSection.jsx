@@ -1,88 +1,114 @@
 "use client";
-import React from "react";
 import Image from "next/image";
-import { TypeAnimation } from "react-type-animation";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import GithubIcon from "../../../public/github-icon.svg";
-import LinkedinIcon from "../../../public/linkedin-icon.svg";
+import { motion, useReducedMotion } from "framer-motion";
+import { EnvelopeIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import { profile, socials } from "../data/portfolio";
 
-const HeroSection = () => {
+const EASE = [0.22, 1, 0.36, 1];
+
+export default function HeroSection() {
+  const reduce = useReducedMotion();
+
+  const rise = (delay) =>
+    reduce
+      ? {}
+      : {
+          initial: { opacity: 0, y: 24 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.6, delay, ease: EASE },
+        };
+
+  const tiltPortrait = (event) => {
+    if (reduce || event.pointerType === "touch") return;
+
+    const stage = event.currentTarget;
+    const bounds = stage.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+    stage.style.setProperty("--rotate-x", `${y * -24}deg`);
+    stage.style.setProperty("--rotate-y", `${x * 26}deg`);
+  };
+
+  const resetPortrait = (event) => {
+    event.currentTarget.style.removeProperty("--rotate-x");
+    event.currentTarget.style.removeProperty("--rotate-y");
+  };
+
   return (
-    <section className="lg:py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-12">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="col-span-8 place-self-center text-center sm:text-left justify-self-start"
-        >
-          <h1 className="text-white mb-4 text-3xl sm:text-2xl lg:text-5xl lg:leading-normal font-extrabold">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-600">
-              Hello, I&apos;m{" "}
-            </span>
-            <br></br>
-            <TypeAnimation
-              sequence={[
-                "Sayandeep Sharma",
-                1000,
-                "Full Stack Developer",
-                1000,
-                "Online Content Creator",
-                1000,
-                "UI/UX Designer",
-                1000,
-              ]}
-              wrapper="span"
-              speed={30}
-              repeat={Infinity}
-            />
-          </h1>
-          <p className="text-[#ADB7BE] text-base sm:text-lg mb-6 lg:text-xl">
-          Welcome to my digital portfolio! I&apos;m passionate about crafting delightful user experiences and building robust web applications. Explore my work below and let&apos;s connect.
+    <section className="portfolio-hero border-b border-line py-16 lg:py-24">
+      <div className="grid items-center gap-12 lg:grid-cols-12">
+        <motion.div className="lg:col-span-7" {...rise(0)}>
+          <p className="font-mono text-xs uppercase tracking-[0.22em] text-ember">
+            {profile.eyebrow}
           </p>
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
-            <Link
-              href="/#contact"
-              className="px-6 inline-block py-3 w-full sm:w-fit rounded-full mr-4 bg-gradient-to-br from-primary-500 to-secondary-500 hover:bg-slate-200 text-white"
-            >
-              Hire Me
-            </Link>
-            <Link
-              href="/"
-              className="px-1 inline-block py-1 w-full sm:w-fit rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 hover:bg-slate-800 text-white mt-3 sm:mt-0"
-            >
-              <span className="block bg-[#121212] hover:bg-slate-800 rounded-full px-5 py-2">
-                Download CV
-              </span>
-            </Link>
-            <Link href="github.com">
-              <Image src={GithubIcon} alt="Github Icon" />
-            </Link>
-            <Link href="linkedin.com">
-              <Image src={LinkedinIcon} alt="Linkedin Icon" />
-            </Link>
+          <h1 className="hero-name mt-5 font-display font-bold">
+            {profile.firstName}<br /><span>{profile.name.slice(profile.firstName.length + 1)}</span>
+          </h1>
+          <p className="mt-5 max-w-xl text-lg text-content-muted">
+            {profile.role}
+          </p>
+          <p className="mt-5 max-w-xl leading-relaxed text-content-muted">
+            {profile.intro}
+          </p>
+          <p className="mt-3 max-w-xl text-sm text-content-faint">
+            {profile.introSecondary}
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <a href="#experience" className="btn-primary">
+              View experience
+              <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a href="#contact" className="btn-ghost">
+              <EnvelopeIcon className="h-4 w-4" aria-hidden="true" />
+              Contact me
+            </a>
+            <div className="flex items-center gap-3">
+              {socials.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="icon-btn"
+                >
+                  <Image
+                    src={`/${social.name.toLowerCase()}-icon.svg`}
+                    alt=""
+                    width={20}
+                    height={20}
+                  />
+                </a>
+              ))}
+            </div>
           </div>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="col-span-4 place-self-center mt-4 lg:mt-0"
-        >
-          <div className="rounded-full bg-[#181818] w-[250px] h-[250px] lg:w-[400px] lg:h-[400px] relative">
-            <Image
-              src="/images/hero_image.png"
-              alt="hero image"
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
-              width={500}
-              height={500}
-            />
+
+        <motion.div className="lg:col-span-5" {...rise(0.12)}>
+          <div
+            className="portrait-stage mx-auto max-w-[28rem]"
+            onPointerMove={tiltPortrait}
+            onPointerLeave={resetPortrait}
+            onPointerCancel={resetPortrait}
+          >
+            <div className="portrait-scene">
+              <div className="portrait-grid" aria-hidden="true" />
+              <div className="portrait-orbit portrait-orbit-violet" aria-hidden="true" />
+              <div className="portrait-orbit portrait-orbit-lime" aria-hidden="true" />
+              <div className="portrait-photo">
+                <Image
+                  src="/images/hero-restored.png"
+                  alt="Portrait of Sayandeep Sharma"
+                  fill
+                  priority
+                  sizes="(max-width: 500px) calc(100vw - 48px), 448px"
+                  className="object-contain object-bottom"
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
     </section>
   );
-};
-
-export default HeroSection;
+}
