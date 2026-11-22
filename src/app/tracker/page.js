@@ -28,7 +28,7 @@ export default function TrackerPage({ searchParams }) {
         )}
       </div>
       {authenticated ? (
-        <TrackerBoard starterProjects={starterProjects} />
+        <TrackerBoard starterProjects={starterProjects} databaseEnabled={Boolean(process.env.DATABASE_URL)} />
       ) : (
         <form action={signIn} className="card mt-8 grid max-w-sm gap-4 p-6">
           <label className="grid gap-2">

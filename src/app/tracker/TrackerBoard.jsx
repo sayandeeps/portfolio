@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { decryptEntries, encryptEntries } from "./actions";
+import { getBoard, initializeBoard, saveBoard } from "./database";
 
 const storageKey = "portfolio-tracker-encrypted-v1";
 const statuses = ["Idea", "In progress", "Blocked", "Ready", "Published"];
@@ -152,17 +153,31 @@ function ProjectCard({ item, saving, update, remove }) {
   );
 }
 
-export default function TrackerBoard({ starterProjects }) {
+export default function TrackerBoard({ starterProjects, databaseEnabled }) {
   const [items, setItems] = useState(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+  const [setup, setSetup] = useState(null);
   const loadedCiphertext = useRef(null);
+  const revision = useRef(null);
   const writePending = useRef(false);
 
   useEffect(() => {
     async function load() {
       try {
+        if (databaseEnabled) {
+          const board = await getBoard();
+          if (board) {
+            revision.current = board.revision;
+            setItems(board.entries);
+          } else {
+            const browserCopy = localStorage.getItem(storageKey);
+            setSetup({ browserCopy });
+          }
+          return;
+        }
+
         let encoded = localStorage.getItem(storageKey);
         if (encoded === null) {
           const initial = await encryptEntries(starterProjects);
@@ -181,13 +196,25 @@ export default function TrackerBoard({ starterProjects }) {
       }
     }
     load();
-  }, [starterProjects]);
+  }, [databaseEnabled, starterProjects]);
 
   async function save(next) {
     if (writePending.current) return false;
     writePending.current = true;
     setSaving(true);
     try {
+      if (databaseEnabled) {
+        const result = await saveBoard(next, revision.current);
+        if (!result) {
+          setError("The board changed on another device. Refresh before trying again.");
+          return false;
+        }
+        revision.current = result.revision;
+        setItems(next);
+        setError("");
+        return true;
+      }
+
       const encoded = await encryptEntries(next);
       if (localStorage.getItem(storageKey) !== loadedCiphertext.current) {
         setError("Tracker entries changed in another tab. Refresh before trying again.");
@@ -201,6 +228,24 @@ export default function TrackerBoard({ starterProjects }) {
     } catch {
       setError("Could not save your changes. Check that you are still signed in and try again.");
       return false;
+    } finally {
+      writePending.current = false;
+      setSaving(false);
+    }
+  }
+
+  async function setupBoard(browserCopy) {
+    if (writePending.current) return;
+    writePending.current = true;
+    setSaving(true);
+    try {
+      const { board, created } = await initializeBoard(browserCopy);
+      revision.current = board.revision;
+      setItems(board.entries);
+      setSetup(null);
+      setError(created ? "" : "The database board was already created. Your browser copy is still saved locally.");
+    } catch {
+      setError("Could not create the database board. Check your connection and tracker password. Your browser copy is still saved.");
     } finally {
       writePending.current = false;
       setSaving(false);
@@ -221,9 +266,28 @@ export default function TrackerBoard({ starterProjects }) {
   return (
     <>
       <p className="mt-4 text-content-muted">
-        Entries are encrypted and saved in this browser. Clearing site data or changing the tracker password makes them unavailable.
+        {databaseEnabled
+          ? "Projects and updates are stored in the tracker database and available wherever you sign in."
+          : "Entries are encrypted and saved in this browser. Clearing site data or changing the tracker password makes them unavailable."}
       </p>
       {error && <p className="mt-4 text-ember" role="alert">{error}</p>}
+      {setup && (
+        <div className="card mt-8 grid max-w-xl gap-4 p-6">
+          <h2 className="text-lg font-semibold text-ember">Set up your synced board</h2>
+          {setup.browserCopy ? (
+            <p className="text-content-muted">Import your projects and updates from this browser. The local copy stays here after import.</p>
+          ) : (
+            <p className="text-content-muted">If you already saved projects on another device, open the tracker there first to import them. Otherwise you can start with the default projects.</p>
+          )}
+          <button
+            className="btn-primary justify-self-start"
+            disabled={saving}
+            onClick={() => setupBoard(setup.browserCopy)}
+          >
+            {setup.browserCopy ? "Import this browser’s board" : "Start with default projects"}
+          </button>
+        </div>
+      )}
       {items && (
         <>
           <form onSubmit={add} className="card mt-8 grid gap-4 p-6">
