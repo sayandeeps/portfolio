@@ -44,6 +44,7 @@ The first import creates the single shared board. Other browsers then load the d
 | `c055abf` | Added nine authenticated starter projects across GitHub cleanup, data engineering, applied AI, and personal interests. |
 | `9c124b1` | Added editing, priorities, due dates, a blocked status, status filtering, and timestamped progress notes. Updated the black-and-green theme and data engineering career copy. |
 | Postgres persistence | Added database mode, a one-time browser import, revision-checked writes, and this handoff. Database mode activates after the environment variable is connected and deployed. |
+| Project details dialog | Compact public project cards open the stack, features, and available links in a native dialog on the same page. |
 
 ## Production migration record
 

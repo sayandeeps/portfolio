@@ -153,6 +153,14 @@ section[id] {
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
+.project-dialog::backdrop {
+  background: rgb(0 0 0 / 0.74);
+}
+
+html:has(.project-dialog[open]) {
+  overflow: hidden;
+}
+
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .project-card:hover {
     transform: perspective(900px) translateY(-6px) rotateX(2deg);
