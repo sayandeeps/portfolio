@@ -44,3 +44,9 @@ The first import creates the single shared board. Other browsers then load the d
 | `c055abf` | Added nine authenticated starter projects across GitHub cleanup, data engineering, applied AI, and personal interests. |
 | `9c124b1` | Added editing, priorities, due dates, a blocked status, status filtering, and timestamped progress notes. Updated the black-and-green theme and data engineering career copy. |
 | Postgres persistence | Added database mode, a one-time browser import, revision-checked writes, and this handoff. Database mode activates after the environment variable is connected and deployed. |
+
+## Production migration record
+
+- Vercel deployed code commit `be2c50d` to Production as deployment `CkpHTfCLEbT9nXNsBZorDfnEbbcw`.
+- The original signed-in browser offered its encrypted board for import. The import succeeded with nine projects. A fresh page load showed the database-backed board with all nine projects and no setup prompt.
+- The source browser copy was retained. A separate-device sign-in and a concurrent-write exercise have not yet been tested in Production.
