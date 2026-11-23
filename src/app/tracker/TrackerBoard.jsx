@@ -54,10 +54,14 @@ function projectFields(form) {
   };
 }
 
-function ProjectCard({ item, saving, update, remove }) {
+function ProjectDialog({ item, saving, error, update, remove, close }) {
+  const dialog = useRef(null);
   const [editing, setEditing] = useState(false);
-  const [showUpdates, setShowUpdates] = useState(false);
   const updates = item.updates ?? [];
+
+  useEffect(() => {
+    dialog.current.showModal();
+  }, []);
 
   async function edit(event) {
     event.preventDefault();
@@ -75,81 +79,90 @@ function ProjectCard({ item, saving, update, remove }) {
   }
 
   return (
-    <li className="card min-w-0 self-start p-5">
-      {editing ? (
-        <form onSubmit={edit} className="grid gap-4">
-          <ProjectFields item={item} />
-          <div className="flex flex-wrap gap-2">
-            <button disabled={saving} className="btn-primary">Save changes</button>
-            <button type="button" className="btn-ghost" onClick={() => setEditing(false)}>Cancel</button>
+    <dialog
+      ref={dialog}
+      aria-labelledby="tracker-project-title"
+      onClose={close}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) dialog.current.close();
+      }}
+      className="project-dialog card m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-4xl overflow-y-auto overscroll-contain p-0 text-content"
+    >
+      <div className="p-5 sm:p-7">
+        <header className="flex items-start justify-between gap-4 border-b pb-4">
+          <div className="min-w-0">
+            <p className="text-sm text-ember">{item.category}</p>
+            <h2 id="tracker-project-title" className="mt-1 break-words font-display text-section font-semibold">{item.title}</h2>
           </div>
-        </form>
-      ) : (
-        <>
-          <p className="text-sm text-ember">{item.category}</p>
-          <h2 className="mt-2 break-words text-lg font-semibold">{item.title}</h2>
-          <div className="mt-2 flex flex-wrap gap-2 text-sm text-content-muted">
-            <span>{item.priority ?? "Normal"} priority</span>
-            {item.dueDate && <span>Due <time dateTime={item.dueDate}>{item.dueDate}</time></span>}
-          </div>
-          {item.notes && <p className="mt-3 whitespace-pre-wrap break-words text-content-muted">{item.notes}</p>}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <select
-              aria-label={`Status for ${item.title}`}
-              className={`${field} !w-auto`}
-              disabled={saving}
-              value={item.status}
-              onChange={(event) => update(item.id, { status: event.target.value })}
-            >
-              {statuses.map((status) => <option key={status}>{status}</option>)}
-            </select>
-            <button className="btn-ghost" type="button" onClick={() => setEditing(true)}>Edit</button>
-            <button
-              className="btn-ghost"
-              type="button"
-              disabled={saving}
-              onClick={() => {
-                if (window.confirm(`Remove “${item.title}” and its updates?`)) remove(item.id);
-              }}
-            >
-              Remove
-            </button>
-          </div>
-        </>
-      )}
+          <button type="button" className="icon-btn shrink-0" aria-label="Close project"
+            onClick={() => dialog.current.close()}>×</button>
+        </header>
+        {error && <p className="mt-4 text-ember" role="alert">{error}</p>}
+        <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1fr)_14rem]">
+          <div className="min-w-0">
+            {editing ? (
+              <form onSubmit={edit} className="grid gap-4">
+                <ProjectFields item={item} />
+                <div className="flex flex-wrap gap-2">
+                  <button disabled={saving} className="btn-primary">Save changes</button>
+                  <button type="button" className="btn-ghost" onClick={() => setEditing(false)}>Cancel</button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <h3 className="font-semibold">Notes</h3>
+                <p className="mt-2 whitespace-pre-wrap break-words text-content-muted">{item.notes || "No notes yet."}</p>
+              </>
+            )}
 
-      <div className="mt-5 border-t pt-4">
-        <button
-          type="button"
-          aria-expanded={showUpdates}
-          className="text-sm font-semibold text-ember"
-          onClick={() => setShowUpdates(!showUpdates)}
-        >
-          {showUpdates ? "Hide progress updates" : `Progress updates (${updates.length})`}
-        </button>
-        {showUpdates && (
-          <>
-            <form onSubmit={addUpdate} className="mt-4 grid gap-2">
-              <label className="grid gap-2">
-                Progress update
-                <textarea name="message" className={field} rows={2} required maxLength={2000} />
-              </label>
-              <button disabled={saving} className="btn-primary justify-self-start">Post update</button>
-            </form>
-            <ol className="mt-4 space-y-4">
-              {updates.map((entry) => (
-                <li className="border-l pl-3" key={entry.id}>
-                  <time className="text-xs text-content-faint" dateTime={entry.date}>
-                    {new Date(entry.date).toLocaleString()}
-                  </time>
-                  <p className="mt-1 whitespace-pre-wrap break-words text-sm text-content">{entry.message}</p>
-                </li>
-              ))}
-            </ol>
-          </>
-        )}
+            <section className="mt-6 border-t pt-5">
+              <h3 className="font-semibold">Activity</h3>
+              <form onSubmit={addUpdate} className="mt-3 grid gap-2">
+                <label className="grid gap-2">
+                  Progress update
+                  <textarea name="message" className={field} rows={2} required maxLength={2000} />
+                </label>
+                <button disabled={saving} className="btn-primary justify-self-start">Post update</button>
+              </form>
+              {updates.length === 0 && <p className="mt-4 text-sm text-content-faint">No updates yet.</p>}
+              <ol className="mt-4 space-y-4">
+                {updates.map((entry) => (
+                  <li className="border-l pl-3" key={entry.id}>
+                    <time className="text-xs text-content-faint" dateTime={entry.date}>
+                      {new Date(entry.date).toLocaleString()}
+                    </time>
+                    <p className="mt-1 whitespace-pre-wrap break-words text-sm">{entry.message}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </div>
+
+          <aside className="rounded-card border row-start-1 bg-surface2/50 p-4 md:col-start-2">
+            <h3 className="font-semibold">Details</h3>
+            <label className="mt-3 grid gap-2 text-sm">
+              Status
+              <select className={field} disabled={saving} value={item.status}
+                onChange={(event) => update(item.id, { status: event.target.value })}>
+                {statuses.map((status) => <option key={status}>{status}</option>)}
+              </select>
+            </label>
+            <dl className="my-4 grid grid-cols-2 gap-2 text-sm">
+              <dt className="text-content-muted">Priority</dt>
+              <dd>{item.priority ?? "Normal"}</dd>
+              <dt className="text-content-muted">Due date</dt>
+              <dd>{item.dueDate ? <time dateTime={item.dueDate}>{item.dueDate}</time> : "Unscheduled"}</dd>
+            </dl>
+            <div className="flex flex-wrap gap-2">
+              {!editing && <button className="btn-ghost" type="button" onClick={() => setEditing(true)}>Edit project</button>}
+              <button className="btn-ghost" type="button" disabled={saving} onClick={async () => {
+                if (window.confirm(`Remove “${item.title}” and its updates?`) && await remove(item.id)) close();
+              }}>Remove</button>
+            </div>
+          </aside>
+        </div>
       </div>
-    </li>
+    </dialog>
   );
 }
 
@@ -158,6 +171,7 @@ export default function TrackerBoard({ starterProjects, databaseEnabled }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
   const [setup, setSetup] = useState(null);
   const loadedCiphertext = useRef(null);
   const revision = useRef(null);
@@ -261,6 +275,11 @@ export default function TrackerBoard({ starterProjects, databaseEnabled }) {
     if (await save([...items, item])) form.reset();
   }
 
+  const selected = items?.find((item) => item.id === selectedId);
+  const updateProject = (id, changes) => save(items.map((item) =>
+    item.id === id ? { ...item, ...changes } : item
+  ));
+
   const visible = items?.filter((item) => !statusFilter || item.status === statusFilter);
 
   return (
@@ -270,7 +289,7 @@ export default function TrackerBoard({ starterProjects, databaseEnabled }) {
           ? "Projects and updates are stored in the tracker database and available wherever you sign in."
           : "Entries are encrypted and saved in this browser. Clearing site data or changing the tracker password makes them unavailable."}
       </p>
-      {error && <p className="mt-4 text-ember" role="alert">{error}</p>}
+      {!selected && error && <p className="mt-4 text-ember" role="alert">{error}</p>}
       {setup && (
         <div className="card mt-8 grid max-w-xl gap-4 p-6">
           <h2 className="text-lg font-semibold text-ember">Set up your synced board</h2>
@@ -310,16 +329,34 @@ export default function TrackerBoard({ starterProjects, databaseEnabled }) {
           {visible.length === 0 && <p className="mt-6 text-content-muted">No projects match this view.</p>}
           <ul className="mt-5 grid gap-4 sm:grid-cols-2">
             {visible.map((item) => (
-              <ProjectCard
-                key={item.id}
-                item={item}
-                saving={saving}
-                update={(id, changes) => save(items.map((entry) => entry.id === id ? { ...entry, ...changes } : entry))}
-                remove={(id) => save(items.filter((entry) => entry.id !== id))}
-              />
+              <li key={item.id} className="card min-w-0 p-5">
+                <p className="text-sm text-ember">{item.category}</p>
+                <h2 className="mt-2 break-words text-lg font-semibold">{item.title}</h2>
+                <p className="mt-2 text-sm text-content-muted">
+                  {item.status} · {item.priority ?? "Normal"} priority
+                </p>
+                <button type="button" className="btn-ghost mt-4" aria-haspopup="dialog"
+                  aria-label={`Open project ${item.title}`} onClick={(event) => {
+                    event.currentTarget.focus();
+                    setSelectedId(item.id);
+                  }}>
+                  Open project
+                </button>
+              </li>
             ))}
           </ul>
         </>
+      )}
+      {selected && (
+        <ProjectDialog
+          key={selected.id}
+          item={selected}
+          saving={saving}
+          error={error}
+          update={updateProject}
+          remove={(id) => save(items.filter((item) => item.id !== id))}
+          close={() => setSelectedId(null)}
+        />
       )}
     </>
   );
