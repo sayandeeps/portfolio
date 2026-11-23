@@ -63,3 +63,19 @@ export const starterProjects = [
     notes: "Build an interactive view of places visited, with filters for city, neighborhood, and cuisine.",
   },
 ];
+
+export const teesverseLaunchPlan = {
+  id: "teesverse-shopify-launch",
+  title: "Teesverse — Shopify launch",
+  category: "Teesverse",
+  status: "Idea",
+  priority: "High",
+  notes: [
+    "Decision: keep the React Router storefront and use Shopify Basic + Headless Storefront API for the catalog, variants, inventory, cart, and hosted checkout. Run day-to-day operations in Shopify Admin.",
+    "Accounts: allow guest checkout by phone or email. Phone is contact information, not SMS verification. Offer optional Shopify email OTP for account login. Keep custom-print quotes on the real WhatsApp Business number.",
+    "Payments and shipping: connect Razorpay for prepaid orders and Delhivery One for fulfillment. Start with configured shipping rates; verify pincode coverage and the COD flow before launch.",
+    "Budget snapshot: ₹1,994/month Shopify Basic monthly (₹1,499/month equivalent annually), plus US$20/month if using Vercel Pro. Estimate about 4% combined on prepaid orders before applicable fee taxes; courier and COD fees vary.",
+    "Release gate: test one tee across size/color variants, stock, prepaid checkout, COD, order sync, cancellation and refund. Replace the placeholder WhatsApp number and fix frontend type-check failures.",
+    "Keep FastAPI, Postgres, MinIO, Fast2SMS, and the custom admin off the customer purchase path. Revisit custom services only if requirements justify them.",
+  ].join("\n\n"),
+};

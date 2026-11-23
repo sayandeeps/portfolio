@@ -52,3 +52,10 @@ The first import creates the single shared board. Other browsers then load the d
 - Vercel deployed code commit `be2c50d` to Production as deployment `CkpHTfCLEbT9nXNsBZorDfnEbbcw`.
 - The original signed-in browser offered its encrypted board for import. The import succeeded with nine projects. A fresh page load showed the database-backed board with all nine projects and no setup prompt.
 - The source browser copy was retained. A separate-device sign-in and a concurrent-write exercise have not yet been tested in Production.
+
+## Tracker board and CLI API
+
+- The board groups projects into status columns. Search and category/status filters narrow the visible cards. Open a card to edit its details or post a progress update. The Teesverse launch-plan action adds a single project card with the Shopify, payments, shipping, login, cost, and release decisions.
+- The [OpenAPI specification](docs/tracker-openapi.json) defines project and progress-update list, read, create, replace, and delete endpoints. The route shares the same Postgres board store and optimistic revision checks as the browser UI. A CLI can fetch the board revision and send it as a quoted `If-Match` value on writes. A conflict returns HTTP 409. Refresh before retrying.
+- To enable CLI access, set a random server-only `TRACKER_API_TOKEN` of at least 32 characters in Vercel Production and redeploy. The endpoint returns 401 until configured. The token has full board access, including deletion. Keep it separate from `TRACKER_PASSWORD`; use `Authorization: Bearer …` and rotate it if disclosed.
+- The board UI uses its existing signed session. API access uses the separate bearer token. The API requires an initialized database board; initialization and legacy browser import remain under the web tracker.

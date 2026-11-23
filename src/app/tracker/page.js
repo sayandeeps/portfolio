@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { signIn, signOut } from "./actions";
 import { hasSession, trackerPassword } from "./auth";
 import TrackerBoard from "./TrackerBoard";
-import { starterProjects } from "./backlog";
+import { starterProjects, teesverseLaunchPlan } from "./backlog";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +28,7 @@ export default function TrackerPage({ searchParams }) {
         )}
       </div>
       {authenticated ? (
-        <TrackerBoard starterProjects={starterProjects} databaseEnabled={Boolean(process.env.DATABASE_URL)} />
+        <TrackerBoard starterProjects={starterProjects} launchPlan={teesverseLaunchPlan} databaseEnabled={Boolean(process.env.DATABASE_URL)} />
       ) : (
         <form action={signIn} className="card mt-8 grid max-w-sm gap-4 p-6">
           <label className="grid gap-2">

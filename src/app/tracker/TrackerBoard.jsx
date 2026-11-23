@@ -3,11 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { decryptEntries, encryptEntries } from "./actions";
 import { getBoard, initializeBoard, saveBoard } from "./database";
+import { categories, priorities, statuses } from "./project-options";
+
 
 const storageKey = "portfolio-tracker-encrypted-v1";
-const statuses = ["Idea", "In progress", "Blocked", "Ready", "Published"];
-const categories = ["GitHub cleanup", "Data engineering", "Applied AI", "Fun", "Personal"];
-const priorities = ["Low", "Normal", "High"];
 const field = "w-full rounded-lg border bg-surface2 px-3 py-2 text-content";
 
 function ProjectFields({ item }) {
@@ -166,11 +165,13 @@ function ProjectDialog({ item, saving, error, update, remove, close }) {
   );
 }
 
-export default function TrackerBoard({ starterProjects, databaseEnabled }) {
+export default function TrackerBoard({ starterProjects, launchPlan, databaseEnabled }) {
   const [items, setItems] = useState(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [setup, setSetup] = useState(null);
   const loadedCiphertext = useRef(null);
@@ -280,7 +281,13 @@ export default function TrackerBoard({ starterProjects, databaseEnabled }) {
     item.id === id ? { ...item, ...changes } : item
   ));
 
-  const visible = items?.filter((item) => !statusFilter || item.status === statusFilter);
+  const keyword = query.trim().toLowerCase();
+  const visible = items?.filter((item) =>
+    (!statusFilter || item.status === statusFilter) &&
+    (!categoryFilter || item.category === categoryFilter) &&
+    (!keyword || item.title.toLowerCase().includes(keyword))
+  );
+  const lanes = statusFilter ? [statusFilter] : statuses;
 
   return (
     <>
@@ -309,42 +316,72 @@ export default function TrackerBoard({ starterProjects, databaseEnabled }) {
       )}
       {items && (
         <>
-          <form onSubmit={add} className="card mt-8 grid gap-4 p-6">
-            <h2 className="text-lg font-semibold text-ember">Add a project</h2>
-            <ProjectFields />
-            <button disabled={saving} className="btn-primary justify-self-start">Add to tracker</button>
-          </form>
+          <div className="mt-6 flex flex-wrap items-start gap-3">
+            <details className="card w-full p-4 sm:flex-1">
+              <summary className="cursor-pointer font-semibold text-ember">Add a project</summary>
+              <form onSubmit={add} className="mt-4 grid gap-4">
+                <ProjectFields />
+                <button disabled={saving} className="btn-primary justify-self-start">Add to tracker</button>
+              </form>
+            </details>
+            {!items.some((item) => item.id === launchPlan.id) && (
+              <button type="button" className="btn-ghost" disabled={saving}
+                onClick={() => save([...items, { ...launchPlan, updates: [] }])}>
+                Add Teesverse launch plan
+              </button>
+            )}
+          </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-content-muted">{visible.length} of {items.length} projects</p>
-            <label className="flex items-center gap-2 text-sm">
-              Filter by status
-              <select className={`${field} !w-auto`} value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}>
+          <div className="mt-6 flex flex-wrap items-end gap-3">
+            <label className="grid flex-1 gap-1 text-sm">Search projects
+              <input className={field} type="search" value={query} onChange={(event) => setQuery(event.target.value)} />
+            </label>
+            <label className="grid gap-1 text-sm">Category
+              <select className={field} value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
+                <option value="">All categories</option>
+                {categories.map((category) => <option key={category}>{category}</option>)}
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm">Status
+              <select className={field} value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
                 <option value="">All statuses</option>
                 {statuses.map((status) => <option key={status}>{status}</option>)}
               </select>
             </label>
           </div>
-          {visible.length === 0 && <p className="mt-6 text-content-muted">No projects match this view.</p>}
-          <ul className="mt-5 grid gap-4 sm:grid-cols-2">
-            {visible.map((item) => (
-              <li key={item.id} className="card min-w-0 p-5">
-                <p className="text-sm text-ember">{item.category}</p>
-                <h2 className="mt-2 break-words text-lg font-semibold">{item.title}</h2>
-                <p className="mt-2 text-sm text-content-muted">
-                  {item.status} · {item.priority ?? "Normal"} priority
-                </p>
-                <button type="button" className="btn-ghost mt-4" aria-haspopup="dialog"
-                  aria-label={`Open project ${item.title}`} onClick={(event) => {
-                    event.currentTarget.focus();
-                    setSelectedId(item.id);
-                  }}>
-                  Open project
-                </button>
-              </li>
-            ))}
-          </ul>
+          <p className="mt-4 text-sm text-content-muted">{visible.length} of {items.length} projects</p>
+          <div className="mt-3 grid grid-flow-col auto-cols-[minmax(15rem,1fr)] gap-3 overflow-x-auto pb-4">
+            {lanes.map((status) => {
+              const lane = visible.filter((item) => item.status === status);
+              return (
+                <section key={status} aria-label={status} className="rounded-card border bg-surface2/50 p-3">
+                  <h2 className="mb-3 flex items-center justify-between text-sm font-semibold">
+                    {status}
+                    <span className="chip">{lane.length}</span>
+                  </h2>
+                  {lane.length === 0 && <p className="px-1 pb-2 text-sm text-content-faint">No projects</p>}
+                  <ul className="grid gap-2">
+                    {lane.map((item) => (
+                      <li key={item.id}>
+                        <button type="button" aria-haspopup="dialog" aria-label={`Open project ${item.title}`}
+                          className="card w-full p-3 text-left hover:border-ember/50"
+                          onClick={(event) => {
+                            event.currentTarget.focus();
+                            setSelectedId(item.id);
+                          }}>
+                          <span className="block text-xs text-ember">{item.category}</span>
+                          <strong className="mt-1 block break-words">{item.title}</strong>
+                          <span className="mt-2 block text-xs text-content-muted">
+                            {item.priority ?? "Normal"} priority{item.dueDate && ` · Due ${item.dueDate}`}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
         </>
       )}
       {selected && (
